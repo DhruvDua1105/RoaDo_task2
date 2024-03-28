@@ -1,0 +1,55 @@
+interface DeviceDetails {
+    deviceId: string;
+    loggedInAt: Date;
+    loggedOutAt: Date | null;
+    lastSeenAt: Date;
+}
+
+interface UserActivity {
+    [userId: string]: DeviceDetails[];
+}
+
+function getMonthlyUserActivity(userActivity: UserActivity, targetMonth: number, targetYear: number): { loggedInUsers: number, activeUsers: number } {
+    let loggedInUsersSet: Set<string> = new Set();
+    let activeUsersSet: Set<string> = new Set();
+
+    for (const userId in userActivity) {
+        const devices = userActivity[userId];
+        for (const device of devices) {
+            if (device.loggedInAt.getMonth() === targetMonth && device.loggedInAt.getFullYear() === targetYear) {
+                loggedInUsersSet.add(userId);
+            }
+            if (device.lastSeenAt.getMonth() === targetMonth && device.lastSeenAt.getFullYear() === targetYear) {
+                activeUsersSet.add(userId);
+            }
+        }
+    }
+
+    return {
+        loggedInUsers: loggedInUsersSet.size,
+        activeUsers: activeUsersSet.size
+    };
+}
+
+const userActivity: UserActivity = {
+    "user1": [
+        {
+            deviceId: 'device1',
+            loggedInAt: new Date('2023-01-01T08:00:00Z'),
+            loggedOutAt: new Date('2023-01-01T10:00:00Z'),
+            lastSeenAt: new Date('2023-01-01T09:00:00Z')
+        }
+    ],
+    "user2": [
+        {
+            deviceId: 'device2',
+            loggedInAt: new Date('2023-01-02T08:00:00Z'),
+            loggedOutAt: new Date('2023-01-02T11:00:00Z'),
+            lastSeenAt: new Date('2023-01-02T10:00:00Z')
+        }
+    ]
+};
+
+const january2023Activity = getMonthlyUserActivity(userActivity, 0, 2023);
+console.log("Logged-in users in January 2023:", january2023Activity.loggedInUsers);
+console.log("Active users in January 2023:", january2023Activity.activeUsers);
