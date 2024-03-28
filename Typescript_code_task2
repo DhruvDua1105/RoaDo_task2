@@ -1,0 +1,51 @@
+interface Shipment {
+    pickups: string[];
+    dropoffs: string[];
+}
+
+interface Trip {
+    origin: string;
+    destination: string;
+}
+
+// Example given in the question
+const shipment: Shipment = {
+    pickups: ['A', 'B'],
+    dropoffs: ['C', 'D']
+};
+
+const trips: Trip[] = [
+    { origin: 'A', destination: 'W' },
+    { origin: 'B', destination: 'W' },
+    { origin: 'W', destination: 'C' },
+    { origin: 'W', destination: 'D' }
+];
+
+console.log(validateTrips(shipment, trips)); // Output: true
+
+function validateTrips(shipment: Shipment, trips: Trip[]): boolean {
+    // Create sets for pickups and dropoffs
+    const pickupsSet = new Set(shipment.pickups);
+    const dropoffsSet = new Set(shipment.dropoffs);
+
+    for (const trip of trips) {
+        const { origin, destination } = trip;
+
+        // if any origin is not a pickup or any destination is not a dropoff, return false
+        if (!pickupsSet.has(origin) && !dropoffsSet.has(destination)) {
+            // If not, the trip is invalid
+            return false;
+        }
+
+        // Remove the origin and destination from the sets
+        pickupsSet.delete(origin);
+        dropoffsSet.delete(destination);
+    }
+
+    // Check if there are any remaining pickups or dropoffs
+    if (pickupsSet.size > 0 || dropoffsSet.size > 0) {
+        // If so, the trips are invalid
+        return false;
+    }
+    return true;
+}
